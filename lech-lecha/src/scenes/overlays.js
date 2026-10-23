@@ -45,7 +45,7 @@ class MedalPop extends Phaser.Scene {
     const go = UI.text(this, W / 2, 430, 'Press Enter to continue', 18, CREAM, { strokeThickness: 4 });
     this.tweens.add({ targets: go, alpha: 0.3, yoyo: true, repeat: -1, duration: 600 });
     UI.burst(this, W / 2, 260, 'spark', 40, { speed: { min: 150, max: 420 }, gravityY: 200 });
-    this.time.delayedCall(700, () => Narrator.say('You earned the ' + d.name + '!'));
+    this.time.delayedCall(700, () => Narrator.say(LINES.medal(d.name)));
     let done = false; const t0 = this.time.now;
     const cont = () => {
       if (done || this.time.now - t0 < 900) return; done = true;

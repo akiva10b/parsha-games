@@ -154,11 +154,17 @@ const Music = (() => {
   return { play, stop, setSour, get current() { return name; } };
 })();
 
-/* Narrator: the browser's speech voice reads every line aloud.
-   Subtitles always show too, so silence is never a dead end. */
+/* Narrator: plays the recorded voice file for a line when one exists
+   (audio/voice/, made by tools/make-voice.mjs), otherwise the browser's
+   speech voice reads it. Subtitles always show too. */
 const Narrator = (() => {
-  let voice = null, speaking = false, token = 0;
+  let voice = null, speaking = false, token = 0, clip = null;
   const ok = () => typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined';
+  const recorded = (text) => {
+    if (typeof VOICE_FILES === 'undefined') return null;
+    const id = lineId(text);
+    return VOICE_FILES[id] ? 'audio/voice/' + id + '.mp3' : null;
+  };
 
   function pick() {
     if (!ok()) return;
@@ -178,28 +184,45 @@ const Narrator = (() => {
     for (const [re, rep] of SPEAK_FIX) s = s.replace(re, rep);
     return s;
   }
+  function silence() {
+    if (clip) { clip.onended = clip.onerror = null; clip.pause(); clip = null; }
+    try { if (ok()) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+  }
+
   /* onEnd fires once, when speech finishes or right away if voice is off. */
   function say(text, onEnd, opts = {}) {
     const my = ++token;
-    const done = () => { if (my !== token) return; speaking = false; Snd.duck(false); if (onEnd) onEnd(); };
-    if (!Save.data.voice || !ok()) { if (onEnd) setTimeout(() => { if (my === token) onEnd(); }, 10); return; }
+    const done = () => { if (my !== token) return; speaking = false; clip = null; Snd.duck(false); if (onEnd) onEnd(); };
+    const src = recorded(text);
+    if (!Save.data.voice || (!src && !ok())) { if (onEnd) setTimeout(() => { if (my === token) onEnd(); }, 10); return; }
+    if (opts.interrupt !== false) silence();
+    speaking = true; Snd.duck(true);
+    // If nothing reports the end, move on after a generous reading time.
+    setTimeout(() => { if (my === token && speaking) done(); }, 4000 + text.length * 110);
+    if (src) {
+      const a = new Audio(src);
+      clip = a;
+      a.onended = done;
+      a.onerror = () => { if (my === token) tts(text, done, opts); };
+      const p = a.play();
+      if (p && p.catch) p.catch(() => { if (my === token && clip === a) tts(text, done, opts); });
+    } else tts(text, done, opts);
+  }
+  function tts(text, done, opts) {
+    clip = null;
+    if (!ok()) return done();
     try {
-      if (opts.interrupt !== false) window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(speakable(text));
       if (voice) u.voice = voice;
       u.rate = opts.rate || 0.95; u.pitch = 1.08; u.volume = 1;
       u.onend = done; u.onerror = done;
-      speaking = true; Snd.duck(true);
       window.speechSynthesis.speak(u);
-      // Some browsers never fire onend; fall back on a reading-time guess.
-      const guess = 3000 + text.length * 100;
-      setTimeout(() => { if (my === token && speaking) done(); }, guess);
     } catch (e) { done(); }
   }
   function stop() {
     token++; speaking = false;
     if (Snd.ctx) Snd.duck(false);
-    try { if (ok()) window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+    silence();
   }
   function setVoice(on) { Save.set('voice', on); if (!on) stop(); }
   return { init, say, stop, setVoice, get speaking() { return speaking; } };

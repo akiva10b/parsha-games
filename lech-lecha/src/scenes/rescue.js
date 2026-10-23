@@ -99,7 +99,7 @@ class Rescue extends BaseLevel {
 
     this.arrow = Plat.arrow(this);
     this.keyIcon = this.add.image(170, 34, 'key').setScale(PX).setScrollFactor(0).setDepth(1500).setAlpha(0.25);
-    this.time.delayedCall(500, () => this.tell('start', 'Rescue Lot! Press X to swing your staff.', GOLD));
+    this.time.delayedCall(500, () => this.tell('start', LINES.rescueStart, GOLD));
   }
 
   update(time, dt) {

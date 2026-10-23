@@ -116,9 +116,13 @@ const LINES = {
   midrash: 'From the Midrash: Avram knew idols were only stone.',
   wrongWay: 'Oops! Wrong way. Turn around!',
   rightWay: 'That’s the way!',
-  checkpoint: (label) => label,
+  cpHome: 'Leaving home!',
+  cpWild: 'Across the wilderness!',
   arrived: 'Avram arrived in Canaan! Hashem said: I will give this land to your children.',
   tryAgain: 'Let’s try again!',
+  hello: 'Hello! I will read the story to you.',
+  medal: (name) => `You earned the ${name}!`,
+  victory: 'You finished the journey! Avraham trusted Hashem all the way. Trust Hashem, choose peace, and help others.',
 
   waveIntro: ['Here come the sheep! Toss wool to send them back.',
               'Now they come from the sides, and faster!',
@@ -128,6 +132,7 @@ const LINES = {
   peace1: 'Let’s not fight. We are family!',
   peace2: 'You are right, uncle Avram.',
 
+  rescueStart: 'Rescue Lot! Press X to swing your staff.',
   rocks: 'Watch out for falling rocks!',
   gateGuards: 'Defeat the gate guards to open the gate!',
   campGate: 'The gate is open!',
@@ -157,3 +162,23 @@ const SPEAK_FIX = [
   [/Avraham/g, 'Av-rah-hahm'],
   [/[“”]/g, ''],
 ];
+
+/* Every line the narrator can say, for the recorded-voice files.
+   The game looks each spoken line up by lineId(), so a line with no
+   recording (or an edited one) simply falls back to the browser voice. */
+function lineId(text) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+function allSpokenLines() {
+  const out = new Set();
+  for (const st of Object.values(STORY)) for (const pg of st.pages) out.add(pg.say || pg.text);
+  for (const v of Object.values(LINES)) {
+    if (typeof v === 'string') out.add(v);
+    else if (Array.isArray(v)) v.forEach((x) => out.add(x));
+  }
+  for (let n = 1; n <= 4; n++) out.add(LINES.idolLeft(n));
+  for (const l of LEVELS) out.add(LINES.medal(l.medalName));
+  return [...out];
+}

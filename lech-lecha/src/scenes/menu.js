@@ -60,7 +60,7 @@ class Menu extends Phaser.Scene {
   }
   toggleVoice() {
     Narrator.setVoice(!Save.data.voice); this.refreshToggles();
-    if (Save.data.voice) Narrator.say('Hello! I will read the story to you.');
+    if (Save.data.voice) Narrator.say(LINES.hello);
   }
   toggleSoundBtn() { Snd.setSound(!Save.data.sound); this.refreshToggles(); }
 

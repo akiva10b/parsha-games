@@ -42,6 +42,14 @@ To deploy, upload the `lech-lecha` folder as-is to any static host (Netlify drop
 - **Phaser 3.80.1**, loaded from cdnjs. There are no other dependencies.
 - **All art is drawn in code** (`src/art.js`): characters are pixel grids of palette letters, and recoloring gives Sarai, Lot, the shepherds and the guards. Backgrounds, tiles, medals and props are drawn on canvases. There are no image files.
 - **All sound is synthesized** with WebAudio (`src/audio.js`): the sound effects and a small step-sequencer for each level's music (the journey tune uses the Hijaz scale). Narration uses the browser's speech voice, with spoken spellings for Hebrew names in `SPEAK_FIX`.
+- **Recorded narration** lives in `audio/voice/`: one MP3 per spoken line, made by `tools/make-voice.mjs` with a macOS premium voice. The game looks each line up by a hash of its text. A line with no recording, or one you've edited since recording, falls back to the browser voice. After changing any text, re-record:
+
+  ```bash
+  node tools/make-voice.mjs                          # best installed premium voice
+  node tools/make-voice.mjs --voice "Zoe (Premium)" --force
+  ```
+
+  You need macOS `say` and ffmpeg. Install a voice under System Settings → Accessibility → Spoken Content → System voice → Manage Voices.
 - **All words are in `src/strings.js`**: story pages, how-to rows, in-level lines and level names. A Hebrew version only needs a translated copy of this file.
 
 ```

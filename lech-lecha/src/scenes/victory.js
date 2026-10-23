@@ -40,7 +40,7 @@ class Victory extends Phaser.Scene {
       });
     } });
 
-    this.time.delayedCall(1800, () => Narrator.say('You finished the journey! Avraham trusted Hashem all the way. Trust Hashem, choose peace, and help others.'));
+    this.time.delayedCall(1800, () => Narrator.say(LINES.victory));
     const t0 = this.time.now;
     const back = () => { if (this.time.now - t0 > 1000) { Narrator.stop(); this.scene.start('Menu'); } };
     this.input.keyboard.on('keydown-ENTER', back);

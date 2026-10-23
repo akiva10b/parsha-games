@@ -20,7 +20,7 @@ const JOURNEY = {
   walls: [[2464, 384, 64, 64], [3936, 248, 64, 200], [6848, 72, 64, 160], [6528, 384, 64, 64]],
   idols: [[288, 448], [528, 384], [736, 448], [960, 336], [1184, 448]],
   gateX: 1408,
-  checkpoints: [{ x: 1640, label: 'Leaving home!' }, { x: 4700, label: 'Across the wilderness!' }],
+  checkpoints: [{ x: 1640, label: LINES.cpHome }, { x: 4700, label: LINES.cpWild }],
   scorpions: [[3000, 2900, 3150], [3600, 3420, 3880], [4900, 4600, 5080], [5850, 5320, 6000], [6950, 6700, 7150]],
   poms: [[5560, 330], [5610, 330], [5740, 258], [5790, 258], [5900, 410], [6440, 410], [7560, 338], [7760, 278], [7810, 278], [8010, 338]],
   // The right road, in order. The arrow aims at the first one not yet reached.
